@@ -56,11 +56,9 @@ namespace IfBracesAnalyzer
             var newBlockStatement = SyntaxFactory.Block(nonBlockStatement)
                 .WithAdditionalAnnotations(Formatter.Annotation);
 
-            var newIfStatement = ifStatement.ReplaceNode(
-                (SyntaxNode)nonBlockStatement, (SyntaxNode)newBlockStatement);
-
-            var root = await document.GetSyntaxRootAsync();
-            var newRoot = root.ReplaceNode(ifStatement, newIfStatement);
+            var root = await document.GetSyntaxRootAsync(cancellationToken);
+            var newRoot = root.ReplaceNode<SyntaxNode, SyntaxNode>(
+                nonBlockStatement, newBlockStatement);
 
             var newDocument = document.WithSyntaxRoot(newRoot);
             return newDocument;
