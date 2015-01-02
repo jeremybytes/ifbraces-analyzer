@@ -40,9 +40,9 @@ namespace IfBracesAnalyzer
             var declaration = root.FindToken(diagnosticSpan.Start).Parent.AncestorsAndSelf().OfType<TypeDeclarationSyntax>().First();
 
             // Register a code action that will invoke the fix.
-            context.RegisterFix(
-                CodeAction.Create("Make uppercase", c => MakeUppercaseAsync(context.Document, declaration, c)),
-                diagnostic);
+            //context.RegisterFix(
+            //    CodeAction.Create("Make uppercase", c => MakeUppercaseAsync(context.Document, declaration, c)),
+            //    diagnostic);
         }
 
         private async Task<Solution> MakeUppercaseAsync(Document document, TypeDeclarationSyntax typeDecl, CancellationToken cancellationToken)

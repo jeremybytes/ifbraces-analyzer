@@ -14,33 +14,32 @@ namespace IfBracesAnalyzer
     public class IfBracesAnalyzerAnalyzer : DiagnosticAnalyzer
     {
         public const string DiagnosticId = "IfBracesAnalyzer";
-        internal const string Title = "Type name contains lowercase letters";
-        internal const string MessageFormat = "Type name '{0}' contains lowercase letters";
-        internal const string Category = "Naming";
+        internal const string Title = "if statement need braces";
+        internal const string MessageFormat = "if statement should be enclosed in braces";
+        internal const string Category = "Syntax";
 
-        internal static DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Title, MessageFormat, Category, DiagnosticSeverity.Warning, isEnabledByDefault: true);
+        internal static DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Title, 
+            MessageFormat, Category, DiagnosticSeverity.Warning, isEnabledByDefault: true);
 
         public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get { return ImmutableArray.Create(Rule); } }
 
         public override void Initialize(AnalysisContext context)
         {
             // TODO: Consider registering other actions that act on syntax instead of or in addition to symbols
-            context.RegisterSymbolAction(AnalyzeSymbol, SymbolKind.NamedType);
+            context.RegisterSyntaxNodeAction(AnalyzeSyntax, SyntaxKind.IfStatement);
         }
 
-        private static void AnalyzeSymbol(SymbolAnalysisContext context)
+        private static void AnalyzeSyntax(SyntaxNodeAnalysisContext context)
         {
-            // TODO: Replace the following code with your own analysis, generating Diagnostic objects for any issues you find
-            var namedTypeSymbol = (INamedTypeSymbol)context.Symbol;
+            var ifStatement = (IfStatementSyntax)context.Node;
 
-            // Find just those named type symbols with names containing lowercase letters.
-            if (namedTypeSymbol.Name.ToCharArray().Any(char.IsLower))
-            {
-                // For all such symbols, produce a diagnostic.
-                var diagnostic = Diagnostic.Create(Rule, namedTypeSymbol.Locations[0], namedTypeSymbol.Name);
+            if (ifStatement.Statement.IsKind(SyntaxKind.Block)) return;
 
-                context.ReportDiagnostic(diagnostic);
-            }
+            var nonBlockStatement = ifStatement.Statement as ExpressionStatementSyntax;
+            if (nonBlockStatement == null) return;
+
+            var diagnostic = Diagnostic.Create(Rule, nonBlockStatement.GetLocation());
+            context.ReportDiagnostic(diagnostic);
         }
     }
 }
